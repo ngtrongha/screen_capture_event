@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="id.nizwar.screen_capture_event_example">
+package="id.nizwar.screen_capture_event_example">
    <application
         android:label="screen_capture_event_example"
         android:icon="@mipmap/ic_launcher">

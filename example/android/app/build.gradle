@@ -45,6 +45,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    namespace 'id.nizwar.screen_capture_event_example'
 }
 
 flutter {
