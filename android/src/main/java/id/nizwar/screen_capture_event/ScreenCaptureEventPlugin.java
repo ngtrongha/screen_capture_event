@@ -35,7 +35,6 @@ import io.flutter.plugin.common.MethodChannel.Result;
  * ScreenCaptureEventPlugin
  */
 public class ScreenCaptureEventPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware {
-    static int SCREEN_CAPTURE_PERMISSION = 101;
     private MethodChannel channel;
     private FileObserver fileObserver;
     private Timer timeout = new Timer();
@@ -70,6 +69,42 @@ public class ScreenCaptureEventPlugin implements FlutterPlugin, MethodCallHandle
                 if (ContextCompat.checkSelfPermission(activityPluginBinding.getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(activityPluginBinding.getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 101);
                 }
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                    if (ContextCompat.checkSelfPermission(
+                            activityPluginBinding.getActivity(),
+                            Manifest.permission.READ_EXTERNAL_STORAGE
+                       ) != PackageManager.PERMISSION_GRANTED
+                   ) {
+                        ActivityCompat.requestPermissions(
+                                activityPluginBinding.getActivity(),
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 101
+                       );
+                    }
+                }
+                else if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
+                    if (ContextCompat.checkSelfPermission(
+                            activityPluginBinding.getActivity(),
+                            Manifest.permission.MANAGE_MEDIA
+                    ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        ActivityCompat.requestPermissions(
+                                activityPluginBinding.getActivity(),
+                                new String[]{Manifest.permission.MANAGE_MEDIA}, 101
+                        );
+                    }
+                }
+                else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(
+                            activityPluginBinding.getActivity(),
+                            Manifest.permission.READ_MEDIA_IMAGES
+                       ) != PackageManager.PERMISSION_GRANTED
+                   ) {
+                            ActivityCompat.requestPermissions(
+                                    activityPluginBinding.getActivity(),
+                                    new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 101
+                           );
+                    }
+                }
                 break;
             case "watch":
                 handler = new Handler(Looper.getMainLooper());
@@ -96,9 +131,7 @@ public class ScreenCaptureEventPlugin implements FlutterPlugin, MethodCallHandle
                                                 setScreenRecordStatus(true);
                                                 updateScreenRecordStatus();
                                             } else if (mime.contains("image")) {
-                                                handler.post(() -> {
-                                                    channel.invokeMethod("screenshot", file.getPath());
-                                                });
+                                                handler.post(() -> channel.invokeMethod("screenshot", file.getPath()));
                                             }
                                         }
                                     }
@@ -122,9 +155,7 @@ public class ScreenCaptureEventPlugin implements FlutterPlugin, MethodCallHandle
                                                 setScreenRecordStatus(true);
                                                 updateScreenRecordStatus();
                                             } else if (mime.contains("image")) {
-                                                handler.post(() -> {
-                                                    channel.invokeMethod("screenshot", file.getPath());
-                                                });
+                                                handler.post(() -> channel.invokeMethod("screenshot", file.getPath()));
                                             }
                                         }
                                     }
@@ -243,6 +274,20 @@ public class ScreenCaptureEventPlugin implements FlutterPlugin, MethodCallHandle
 
         return chosenFile;
     }
+    public enum Path {
+        DCIM(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + File.separator + "Screenshots" + File.separator),
+        PICTURES(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + "Screenshots" + File.separator);
+
+        final private String path;
+
+        public String getPath() {
+            return path;
+        }
+
+        Path(String path) {
+            this.path = path;
+        }
+    }
 
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
@@ -265,19 +310,5 @@ public class ScreenCaptureEventPlugin implements FlutterPlugin, MethodCallHandle
 
     }
 
-    public enum Path {
-        DCIM(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + File.separator + "Screenshots" + File.separator),
-        PICTURES(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + "Screenshots" + File.separator);
-
-        final private String path;
-
-        public String getPath() {
-            return path;
-        }
-
-        Path(String path) {
-            this.path = path;
-        }
-    }
 
 }
