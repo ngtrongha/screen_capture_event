@@ -93,7 +93,7 @@ public class ScreenCaptureEventPlugin implements FlutterPlugin, MethodCallHandle
                         );
                     }
                 }
-                else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                else  {
                     if (ContextCompat.checkSelfPermission(
                             activityPluginBinding.getActivity(),
                             Manifest.permission.READ_MEDIA_IMAGES
